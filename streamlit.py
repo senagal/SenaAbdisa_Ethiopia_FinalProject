@@ -2,10 +2,10 @@
 """
 streamlit_ethiopia.py
 =====================
-Dashboard: Guardian Coverage of Ethiopia 1996-2021
+Dashboard: The Guardian Coverage of Ethiopia 1996-2021
 
 Research questions:
-  1. How has Guardian coverage of Ethiopia changed over time?
+  1. How has The Guardian coverage of Ethiopia changed over time?
   2. How has the sentiment of The Guardian articles on Ethiopia changed over time?
   3. Which topics dominate Ethiopia-related coverage?
   4. Do years with more focused coverage correspond to higher/lower
@@ -32,13 +32,13 @@ from statsmodels.formula.api import ols
 # ============================================================
 
 st.set_page_config(
-    page_title="Guardian Coverage of Ethiopia",
+    page_title="The Guardian Coverage of Ethiopia",
     layout="wide",
 )
 
-st.title("Guardian Coverage of Ethiopia 1996-2021")
+st.title("The Guardian Coverage of Ethiopia 1996-2021")
 st.markdown(
-    "How has Guardian media coverage, sentiment, and topics about Ethiopia "
+    "How has The Guardian media coverage, sentiment, and topics about Ethiopia "
     "changed over time - and are they associated with tourist arrivals?"
 )
 
@@ -168,6 +168,7 @@ tabs = st.tabs([
     "Q4  Coverage → Tourism",
     "Q5  Negative → Tourism",
     "Q6  Positive → Tourism",
+    "Conclusion",
 ])
 
 # ── Pipeline ──────────────────────────────────────────────────────────────────
@@ -198,7 +199,7 @@ Due to legal policies against obtaining information from most sites, this projec
     st.markdown("---")
     st.subheader("How the Data Was Sourced and Cleaned")
 
-    st.markdown("#### Guardian Articles")
+    st.markdown("#### The Guardian Articles")
     st.markdown("""
 Articles were fetched from The Guardian's [Open Platform API](https://open-platform.theguardian.com/), which provides free access to their full article archive. To use the fetch script yourself:
 
@@ -234,7 +235,7 @@ To obtain it:
 
 **Important note on the arrivals figure:** The dataset reports tourist arrivals split into personal and business/professional reasons. The total arrivals figure used in this project is the **combined total** of both personal and business visitors, as both contribute to the overall tourism footprint of the country.
 
-During cleaning (`prepare_ethiopia.py`), the full dataset, which covers many countries, is filtered to **Ethiopia only**, and further narrowed to the years **1996 to 2021** to match the Guardian article data. Any rows with missing arrival counts are dropped. The cleaned tourism data is then merged with the article summary data (one row per year) to produce the final analysis file at `data/ethiopia_analysis.csv`.
+During cleaning (`prepare_ethiopia.py`), the full dataset, which covers many countries, is filtered to **Ethiopia only**, and further narrowed to the years **1996 to 2021** to match The Guardian article data. Any rows with missing arrival counts are dropped. The cleaned tourism data is then merged with the article summary data (one row per year) to produce the final analysis file at `data/ethiopia_analysis.csv`.
     """)
 
     st.markdown("---")
@@ -242,9 +243,9 @@ During cleaning (`prepare_ethiopia.py`), the full dataset, which covers many cou
 
 # ── Q1: Coverage over time ────────────────────────────────────────────────────
 with tabs[1]:
-    st.header("Q1. How has Guardian coverage of Ethiopia changed over time?")
+    st.header("Q1. How has The Guardian coverage of Ethiopia changed over time?")
     st.markdown(
-        "Each bar shows the number of Guardian articles mentioning Ethiopia in that year, "
+        "Each bar shows the number of The Guardian articles mentioning Ethiopia in that year, "
         "split into articles where Ethiopia is the **main focus** (dark teal) "
         "and articles where Ethiopia is only **mentioned in passing** (light blue)."
     )
@@ -282,7 +283,7 @@ with tabs[1]:
 
     fig.update_layout(
         barmode="stack",
-        title="Guardian articles mentioning/covering Ethiopia per year",
+        title="The Guardian articles mentioning/covering Ethiopia per year",
         xaxis_title="Year",
         yaxis_title="Number of articles",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -311,7 +312,7 @@ with tabs[1]:
         regression_plot(
             x=df["year"], y=df["focused_articles"],
             x_label="Year", y_label="Focused articles",
-            title="Focused Guardian coverage of Ethiopia over time",
+            title="Focused The Guardian coverage of Ethiopia over time",
             year_labels=df["year"],
         )
         peak_year = df.loc[df["focused_articles"].idxmax(), "year"]
@@ -325,7 +326,7 @@ with tabs[1]:
         regression_plot(
             x=df["year"], y=df["total_articles"],
             x_label="Year", y_label="Total articles",
-            title="Total Guardian coverage of Ethiopia over time",
+            title="Total The Guardian coverage of Ethiopia over time",
             year_labels=df["year"],
         )
         peak_year = df.loc[df["total_articles"].idxmax(), "year"]
@@ -571,7 +572,7 @@ This is just a starting point for a project I have wanted to do for a while, and
 with tabs[5]:
     st.header("Q5. Do years with more negative coverage correspond to lower tourism the following year?")
     st.markdown("""
-A negative slope here would mean that years when Guardian coverage was more negative
+A negative slope here would mean that years when The Guardian coverage was more negative
 were followed by *fewer* tourists the next year.
 
 We test both the **negative rate** (proportion of negative articles)
@@ -613,11 +614,21 @@ and the **count of negative articles**.
         year_labels=df["year"],
     )
 
+    st.markdown("---")
+    st.subheader("Q5 Findings")
+    st.markdown("""
+Based on the number of negative articles vs number of tourists, the result seems to be opposite of what you would expect. The slope is roughly 7029 which would indicate that for an increase of 1 negative article there is an additional 7029 tourists visiting next year. But one point we have to consider is years with more negative coverage also tend to be years with more total coverage overall (as seen in Q4), and more coverage of any kind correlates with more tourism so it could be confounding the result.
+
+So to check even further see the negative rate vs number of tourists graph, where negative rate is the number of negatively written articles divided by the total number of articles that year. As you can see, the slope of that graph is negative meaning the more the share of negative articles increases the fewer the number of visitors next year. But the p-value is well over 0.05, meaning the relationship is not statistically significant enough.
+
+In short: **negative coverage alone does not appear to deter tourism** in this dataset, at least not in a way that is statistically separable from overall coverage volume.
+    """)
+
 # ── Q6: Positive coverage → next-year tourism ────────────────────────────────
 with tabs[6]:
     st.header("Q6. Do years with more positive coverage correspond to higher tourism the following year?")
     st.markdown("""
-A positive slope here would mean that years when Guardian coverage was more positive
+A positive slope here would mean that years when The Guardian coverage was more positive
 were followed by *more* tourists the next year.
 
 We test both the **positive rate** (proportion of positive articles)
@@ -659,9 +670,51 @@ and the **count of positive articles**.
         year_labels=df["year"],
     )
 
+    st.markdown("---")
+    st.subheader("Q6 Findings")
+    st.markdown("""
+The positive rate shows a weak and generally non-significant association with number of tourists in the following year when we see the positive rate vs number of tourist arrival graph. But the number of positive articles vs number of tourist arrivals shows a more significant association, with an increase of 1 positive article being correlated with an increase of roughly 16,168 tourist arrivals. But again this is likely driven by the correlation between volume of coverage and tourism seen in Q4.
+
+This suggests that **it is the volume of coverage rather than its positivity that is associated with higher tourism**, at least within the range and source of data available here.
+    """)
+
+# ── Conclusion ────────────────────────────────────────────────────────────────
+with tabs[7]:
+    st.header("Final Conclusions")
+    st.markdown("""
+This project set out to answer whether The Guardian's media coverage of Ethiopia is associated with how many tourists the country receives. Here is a summary of what was found:
+
+| Question | Finding |
+|---|---|
+| Q1: Has coverage grown? | Yes, significantly. Both total and focused articles mostly trend upward over 1996-2021. |
+| Q2: Has sentiment changed? | No. Sentiment is mostly mildly and consistently negative throughout, with no significant trend. But when observing the number of articles, most of them are written in a neutral tone. |
+| Q3: Which topics dominate? | Politics & Governance and Conflict & Security dominate, with Health & Development following. |
+| Q4: Does coverage volume predict tourism? | More coverage correlates with more arrivals the following year, but we can't fully determine causation due to the limitations of our dataset. |
+| Q5: Does negative coverage deter tourism? | Not detectably. Negative rate alone does not show a significant negative effect based on our data. |
+| Q6: Does positive coverage attract tourism? | Again not detectably beyond the effect of coverage volume overall. |
+
+**The most important finding** is that overall coverage volume, regardless of sentiment, has the strongest correlation with next-year tourist arrivals in this dataset. This may reflect a simple awareness effect: the more Ethiopia appears in The Guardian, the more it is on the radar of potential visitors.
+
+---
+**Limitations to keep in mind:**
+- All results show association, not causation. We cannot conclude The Guardian's articles caused the tourism arrivals.
+- Data is limited to one outlet (The Guardian), which is only one site and does not fully represent global media at all.
+- Simple linear regression does not control for confounding variables such as economic conditions, regional stability, or global travel trends.
+- Tourism data combines personal and business arrivals, which may respond differently to media coverage.
+
+---
+**Next steps** that would strengthen this analysis:
+- Expand to multiple news sources across different countries and languages.
+- Include additional variables (GDP, flight routes, regional conflict indicators) in a multivariate model.
+- Use more precise sentiment labelling criteria in the GPT prompt.
+- Separate leisure from business tourism in the arrivals data.
+
+This is a starting point for a project I have wanted to pursue for a while. The association between coverage and tourism is real and worth exploring further with richer data.
+    """)
+
 # ── Footer ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.caption(
-    "Data: Guardian API · International tourist arrivals (Our World in Data). "
+    "Data: The Guardian API · International tourist arrivals (Our World in Data). "
     "All regression results show association, not causation."
 )
